@@ -4,22 +4,45 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mini_feed/constants_and_extensions/images_constants.dart';
 
-abstract class ISignUpViewModel {
+abstract class ISignUpViewModel extends ChangeNotifier {
   String? emailValidator(String? email);
   String? passwordValidator(String? email);
   String? userNameValidator(String? email);
-  void validateInformations();
+  bool get isLoading;
+
+  void signUp({
+    required TextEditingController emailController,
+    required TextEditingController passwordController,
+    required TextEditingController userNameController,
+    required GlobalKey<FormState> formKey,
+    required BuildContext context,
+    required bool mounted,
+  });
 }
 
-class SignUpSreen extends StatelessWidget {
+class SignUpSreen extends StatefulWidget {
   final ISignUpViewModel _viewModel;
+
+  const SignUpSreen({super.key, required ISignUpViewModel viewModel})
+    : _viewModel = viewModel;
+
+  @override
+  State<SignUpSreen> createState() => _SignUpSreenState();
+}
+
+class _SignUpSreenState extends State<SignUpSreen> {
   final _userNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final GlobalKey _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  SignUpSreen({super.key, required ISignUpViewModel viewModel})
-    : _viewModel = viewModel;
+  @override
+  void dispose() {
+    _userNameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +79,7 @@ class SignUpSreen extends StatelessWidget {
                   children: [
                     TextFormField(
                       controller: _userNameController,
-                      validator: _viewModel.userNameValidator,
+                      validator: widget._viewModel.userNameValidator,
                       decoration: InputDecoration(
                         label: Text("nom d'utilisateur"),
                         prefixIcon: Padding(
@@ -78,7 +101,7 @@ class SignUpSreen extends StatelessWidget {
                     SizedBox(height: 20),
                     TextFormField(
                       controller: _emailController,
-                      validator: _viewModel.emailValidator,
+                      validator: widget._viewModel.emailValidator,
                       decoration: InputDecoration(
                         label: Text("email"),
                         prefixIcon: Padding(
@@ -100,7 +123,7 @@ class SignUpSreen extends StatelessWidget {
                     SizedBox(height: 20),
                     TextFormField(
                       controller: _passwordController,
-                      validator: _viewModel.passwordValidator,
+                      validator: widget._viewModel.passwordValidator,
                       obscureText: true,
                       decoration: InputDecoration(
                         label: Text("mot de passe"),
@@ -124,16 +147,36 @@ class SignUpSreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 25),
-              FilledButton.icon(
-                label: const Text("S'inscrire"),
-                icon: Icon(Icons.arrow_forward),
-                style: Theme.of(context).filledButtonTheme.style!.copyWith(
-                  minimumSize: WidgetStateProperty.all(
-                    Size(double.infinity, 50),
-                  ),
-                ),
-                onPressed: () {},
+              AnimatedBuilder(
+                animation: widget._viewModel,
+                builder: (context, child) {
+                  if (widget._viewModel.isLoading == true) {
+                    return CircularProgressIndicator();
+                  } else {
+                    return FilledButton.icon(
+                      label: const Text("S'inscrire"),
+                      icon: Icon(Icons.arrow_forward),
+                      style: Theme.of(context).filledButtonTheme.style!
+                          .copyWith(
+                            minimumSize: WidgetStateProperty.all(
+                              Size(double.infinity, 50),
+                            ),
+                          ),
+                      onPressed: () {
+                        widget._viewModel.signUp(
+                          emailController: _emailController,
+                          passwordController: _passwordController,
+                          userNameController: _userNameController,
+                          formKey: _formKey,
+                          context: context,
+                          mounted: mounted,
+                        );
+                      },
+                    );
+                  }
+                },
               ),
+
               SizedBox(height: 20),
               const Row(
                 children: [
@@ -147,12 +190,14 @@ class SignUpSreen extends StatelessWidget {
                 children: [
                   Spacer(),
                   Text("Vous avez déjà un compte ? "),
-                  TextButton(
-                    onPressed: () {
-                      context.pop();
-                      context.pushNamed('sign_in_screen');
+                  GestureDetector(
+                    onTap: () {
+                      context.pushReplacementNamed('sign_in_screen');
                     },
-                    child: Text("connectez-vous"),
+                    child: Text(
+                      "connectez vous",
+                      style: TextStyle(color: Colors.deepPurple),
+                    ),
                   ),
                   Spacer(),
                 ],

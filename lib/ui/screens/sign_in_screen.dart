@@ -1,10 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mini_feed/constants_and_extensions/images_constants.dart';
 
-class SignInScreen extends StatelessWidget {
-  const SignInScreen({super.key});
+abstract class ISignInViewModel extends ChangeNotifier {
+  String? emailValidator(String? email);
+  String? passwordValidator(String? password);
+
+  bool get isLoading;
+  signIn({
+    required TextEditingController emailController,
+    required TextEditingController passwordController,
+    required GlobalKey<FormState> formKey,
+    required BuildContext context,
+    required bool mounted,
+  });
+}
+
+class SignInScreen extends StatefulWidget {
+  final ISignInViewModel _viewMdel;
+
+  const SignInScreen({super.key, required ISignInViewModel viewModel})
+    : _viewMdel = viewModel;
+
+  @override
+  State<SignInScreen> createState() => _SignInScreenState();
+}
+
+class _SignInScreenState extends State<SignInScreen> {
+  final _emailController = TextEditingController();
+
+  final _passwordController = TextEditingController();
+
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -36,11 +65,13 @@ class SignInScreen extends StatelessWidget {
               ),
               SizedBox(height: 30),
               Form(
+                key: _formKey,
                 child: Column(
                   children: [
                     SizedBox(height: 20),
                     TextFormField(
-                      //validator: ,
+                      controller: _emailController,
+                      validator: widget._viewMdel.emailValidator,
                       decoration: InputDecoration(
                         label: Text("email"),
                         prefixIcon: Padding(
@@ -61,6 +92,8 @@ class SignInScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 20),
                     TextFormField(
+                      controller: _passwordController,
+                      validator: widget._viewMdel.passwordValidator,
                       obscureText: true,
                       decoration: InputDecoration(
                         label: Text("mot de passe"),
@@ -84,15 +117,57 @@ class SignInScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 25),
-              FilledButton.icon(
-                label: const Text("Se connecter"),
-                icon: Icon(Icons.arrow_forward),
-                style: Theme.of(context).filledButtonTheme.style!.copyWith(
-                  minimumSize: WidgetStateProperty.all(
-                    Size(double.infinity, 50),
+              AnimatedBuilder(
+                animation: widget._viewMdel,
+                builder: (context, child) {
+                  if (widget._viewMdel.isLoading == true) {
+                    return CircularProgressIndicator();
+                  } else {
+                    return FilledButton.icon(
+                      label: const Text("Se connecter"),
+                      icon: Icon(Icons.arrow_forward),
+                      style: Theme.of(context).filledButtonTheme.style!
+                          .copyWith(
+                            minimumSize: WidgetStateProperty.all(
+                              Size(double.infinity, 50),
+                            ),
+                          ),
+                      onPressed: () {
+                        widget._viewMdel.signIn(
+                          emailController: _emailController,
+                          passwordController: _passwordController,
+                          formKey: _formKey,
+                          context: context,
+                          mounted: mounted,
+                        );
+                      },
+                    );
+                  }
+                },
+              ),
+              SizedBox(height: 20),
+              const Row(
+                children: [
+                  Expanded(child: Divider()),
+                  Text("  ou  ", style: TextStyle(color: Colors.black38)),
+                  Expanded(child: Divider()),
+                ],
+              ),
+              Row(
+                children: [
+                  Spacer(),
+                  Text("Vous n'avez pas de compte ? "),
+                  GestureDetector(
+                    onTap: () {
+                      context.pushReplacementNamed('sign_up_screen');
+                    },
+                    child: Text(
+                      "inscrivez-vous",
+                      style: TextStyle(color: Colors.deepPurple),
+                    ),
                   ),
-                ),
-                onPressed: () {},
+                  Spacer(),
+                ],
               ),
             ],
           ),

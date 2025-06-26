@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:mini_feed/authentification/auth_service.dart';
 import 'package:mini_feed/constants_and_extensions/strings_extensions.dart';
-import 'package:mini_feed/ui/screens/sign_up_screen.dart';
+import 'package:mini_feed/ui/screens/sign_in_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class SignUpViewModel extends ISignUpViewModel {
+class SignInViewModel extends ISignInViewModel {
   final AuthService _authService = AuthService();
-  bool _isLoading = false;
+  bool _isloading = false;
+
   @override
-  bool get isLoading => _isLoading;
+  bool get isLoading => _isloading;
 
   @override
   String? emailValidator(String? email) {
@@ -33,42 +34,30 @@ class SignUpViewModel extends ISignUpViewModel {
   }
 
   @override
-  String? userNameValidator(String? userName) {
-    if (userName != null && userName.trim().length >= 4) {
-      return null;
-    } else {
-      return "votre nom d'utilisateur doit contenir au moins 4 caracteres";
-    }
-  }
-
-  @override
-  void signUp({
+  signIn({
     required TextEditingController emailController,
     required TextEditingController passwordController,
-    required TextEditingController userNameController,
     required GlobalKey<FormState> formKey,
     required BuildContext context,
     required bool mounted,
   }) async {
-    final String email = emailController.text;
-    final String password = passwordController.text;
+    final email = emailController.text;
+    final password = passwordController.text;
     String errorMessage = 'Une erreur est survenue';
     if (formKey.currentState?.validate() ?? false) {
       try {
-        _isLoading = true;
+        _isloading = true;
         notifyListeners();
-        await _authService.signUpWithEmail(
+        await _authService.signInWithEmailPassword(
           email: email,
           password: password,
-          userName: userNameController.text,
         );
       } catch (e) {
         if (e is AuthApiException &&
-            e.message.contains("User already registered")) {
-          errorMessage = "Cet compte existe déjà";
+            e.message.contains('Invalid login credentials')) {
+          errorMessage = "email ou mot de passe incorrect";
         }
         if (mounted) {
-          // ignore: use_build_context_synchronously
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(errorMessage),
@@ -77,7 +66,7 @@ class SignUpViewModel extends ISignUpViewModel {
           );
         }
       }
-      _isLoading = false;
+      _isloading = false;
       notifyListeners();
     }
   }
