@@ -19,10 +19,6 @@ class ScaffoldWithNavBar extends StatelessWidget {
         },
         destinations: [
           NavigationDestination(icon: Icon(Icons.home), label: "Home"),
-          NavigationDestination(
-            icon: Icon(Icons.add_box_outlined),
-            label: "ajouter",
-          ),
           NavigationDestination(icon: Icon(Icons.person), label: "Profil"),
         ],
       ),

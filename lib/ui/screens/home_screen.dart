@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:mini_feed/authentification/auth_service.dart';
+import 'package:mini_feed/supabase/auth_service.dart';
 
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});

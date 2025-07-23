@@ -1,11 +1,12 @@
 import 'package:go_router/go_router.dart';
-import 'package:mini_feed/authentification/auth_refresh_stream.dart';
+import 'package:mini_feed/supabase/auth_refresh_stream.dart';
 import 'package:mini_feed/ui/layout/scaffold_with_nav_bar.dart';
 import 'package:mini_feed/ui/screens/home_screen.dart';
 import 'package:mini_feed/ui/screens/profile_screen.dart';
 import 'package:mini_feed/ui/screens/sign_in_screen.dart';
 import 'package:mini_feed/ui/screens/sign_up_screen.dart';
 import 'package:mini_feed/ui/screens/welcome_screen.dart';
+import 'package:mini_feed/ui/view_models/profile_view_model.dart';
 import 'package:mini_feed/ui/view_models/sign_in_view_model.dart';
 import 'package:mini_feed/ui/view_models/sign_up_view_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -67,7 +68,8 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: '/profile',
-                builder: (context, state) => ProfileScreen(),
+                builder: (context, state) =>
+                    ProfileScreen(viewModel: ProfileViewModel()),
               ),
             ],
           ),
