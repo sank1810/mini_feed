@@ -27,8 +27,12 @@ class ProfileViewModel extends ChangeNotifier {
       final File file = File(xFile.path);
       await _profileSettings.changeProfileImage(file: file);
       await loadProfileImage();
-      //notifyListeners();
     }
+  }
+
+  deleteProfileImage() async {
+    await _profileSettings.deleteProfileImage();
+    await loadProfileImage();
   }
 
   // Future<String?> getProfileImage() async {

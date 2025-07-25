@@ -31,7 +31,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   future: _authService.getUserName(),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) {
-                      return LinearProgressIndicator();
+                      return CircularProgressIndicator();
                     } else {
                       return Text(
                         snapshot.data!,
@@ -120,7 +120,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   Spacer(),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      widget._viewModel.deleteProfileImage();
+                      context.pop();
+                    },
                     icon: Icon(Icons.delete_forever_rounded),
                     iconSize: 30,
                   ),

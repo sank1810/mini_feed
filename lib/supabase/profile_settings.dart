@@ -23,4 +23,15 @@ class ProfileSettings {
           .eq('uid', currentUser.id);
     }
   }
+
+  deleteProfileImage() async {
+    final User? currentUser = _authService.getCurrentUser();
+    if (currentUser != null) {
+      await _supabase.storage.from('avatars').remove([currentUser.id]);
+      await _supabase
+          .from('app_users')
+          .update({'profileImage': null})
+          .eq('uid', currentUser.id);
+    }
+  }
 }
